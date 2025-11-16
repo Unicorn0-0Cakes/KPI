@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>USA Weekly KPI Report</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <title>USA Weekly KPI Report - Last Week</title>
+
+    <!-- Chart.js only (no extra plugins) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
     <style>
         * {
             margin: 0;
@@ -45,32 +47,113 @@
     </style>
 </head>
 <body>
-    <h1>USA Weekly KPI Report</h1>
+    <h1>USA Weekly KPI Report - Last Week</h1>
     <div class="chart-container">
         <canvas id="kpiChart"></canvas>
     </div>
 
     <script>
         // ============================================
-        // LAST WEEK'S DATA - Default at 0
-        // Update this when moving to a new week
+        // LAST WEEK'S DATA
         // ============================================
         const weeklyData = {
             'CONDITION MONITORING': 72,
             'CAT SUPPORT': 14,
             'DP MONITORING': 106,
-            'SAMSARA MONITORING':49,
+            'SAMSARA MONITORING': 49,
             'RCA INVESTIGATIONS (IN HOURS)': 5,
-            'REMOTE SUPPORT':3,
+            'REMOTE SUPPORT': 3,
             'VALUE CASES': 4
         };
         // ============================================
 
+        const labels = Object.keys(weeklyData);
+        const values = Object.values(weeklyData);
+
         const ctx = document.getElementById('kpiChart').getContext('2d');
+
+        // Custom plugin to draw value labels like the "This Week" chart
+        const valueLabelsPlugin = {
+            id: 'valueLabelsPlugin',
+            afterDatasetsDraw(chart, args, pluginOptions) {
+                const { ctx } = chart;
+                const dataset = chart.data.datasets[0];
+                const meta = chart.getDatasetMeta(0);
+
+                ctx.save();
+                ctx.font = 'bold 22px Arial';
+                ctx.textBaseline = 'middle';
+
+                meta.data.forEach((bar, index) => {
+                    const value = dataset.data[index];
+
+                    // Hide zeros
+                    if (value === 0) return;
+
+                    const isSmall = value < 5;
+
+                    // For horizontal bar: bar.x is right edge, bar.y is vertical center
+                    let x;
+                    if (isSmall) {
+                        // small values: just past the end of the bar
+                        x = bar.x + 20;
+                        ctx.fillStyle = '#000000';
+                        ctx.textAlign = 'left';
+                    } else {
+                        // larger values: inside the bar, near the end
+                        x = bar.x - 10;
+                        ctx.fillStyle = '#ffffff';
+                        ctx.textAlign = 'right';
+                    }
+
+                    const y = bar.y;
+                    ctx.fillText(String(value), x, y);
+                });
+
+                ctx.restore();
+            }
+        };
+
         new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: Object.keys(weeklyData),
+                labels: labels,
+                datasets: [{
+                    label: 'Week Value',
+                    data: values,
+                    backgroundColor: '#255190',
+                    borderColor: '#255190',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            autoSkip: false
+                        }
+                    }
+                }
+            },
+            plugins: [valueLabelsPlugin]
+        });
+    </script>
+</body>
+</html>
                 datasets: [{
                     label: 'Week Value',
                     data: Object.values(weeklyData),
