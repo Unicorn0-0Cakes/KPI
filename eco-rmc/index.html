@@ -50,27 +50,85 @@
         <canvas id="kpiChart"></canvas>
     </div>
 
-<script>
-    // ============================================
-    // UPDATE YOUR WEEKLY DATA HERE
-    // Just change the numbers below each week
-    // ============================================
-    const weeklyData = {
-        'CONDITION MONITORING': 10,
-        'CAT SUPPORT': 1,
-        'DP MONITORING': 108,
-        'SAMSARA MONITORING': 0,
-        'RCA INVESTIGATIONS (IN HOURS)': 0,
-        'REMOTE SUPPORT': 1,
-        'VALUE CASES': 0
-    };
-    // ============================================
+    <script>
+        // ============================================
+        // UPDATE YOUR WEEKLY DATA HERE
+        // Just change the numbers below each week
+        // ============================================
+        const weeklyData = {
+            'CONDITION MONITORING': 10,
+            'CAT SUPPORT': 1,
+            'DP MONITORING': 108,
+            'SAMSARA MONITORING': 0,
+            'RCA INVESTIGATIONS (IN HOURS)': 0,
+            'REMOTE SUPPORT': 1,
+            'VALUE CASES': 0
+        };
+        // ============================================
 
-    const ctx = document.getElementById('kpiChart').getContext('2d');
+        const labels = Object.keys(weeklyData);
+        const values = Object.values(weeklyData);
 
-    // ✅ Register the datalabels plugin
-    Chart.register(ChartDataLabels);
+        const ctx = document.getElementById('kpiChart').getContext('2d');
 
+        // Register the datalabels plugin
+        Chart.register(ChartDataLabels);
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Week Value',
+                    data: values,
+                    backgroundColor: '#255190',
+                    borderColor: '#255190',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    datalabels: {
+                        // Color: small numbers black, big numbers white
+                        color: function (context) {
+                            const value = context.dataset.data[context.dataIndex];
+                            if (value === 0) return '#000000'; // won't show anyway
+                            return value < 5 ? '#000000' : '#ffffff';
+                        },
+
+                        // Attach to right edge of the bar
+                        anchor: 'end',
+                        align: 'right',
+
+                        // Distance from bar edge
+                        offset: function (context) {
+                            const value = context.dataset.data[context.dataIndex];
+                            if (value === 0) return 0;   // hidden anyway
+                            if (value < 5) return 20;    // small: 20px past the bar
+                            return -10;                  // big: 10px inside the bar
+                        },
+
+                        font: {
+                            size: 24,
+                            weight: 'bold'
+                        },
+
+                        // Hide zeros
+                        formatter: function (value) {
+                            if (value === 0) return '';
+                            return value;
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        begi
     new Chart(ctx, {
         type: 'bar',
         data: {
