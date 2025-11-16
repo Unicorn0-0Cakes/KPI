@@ -98,14 +98,17 @@
                 },
                 // ✅ This controls the numbers inside the bars
                 datalabels: {
-                    anchor: 'center',      // position inside bar
-                    align: 'center',
-                    color: '#ffffff',      // white text
+                    anchor: 'end',          // push label to end of the bar
+                    align: 'right',         // position it just inside the right edge
+                    color: '#ffffff',       // white text
                     font: {
+                        size: 22,           // << change this to make text bigger or smaller
                         weight: 'bold'
                     },
+                    offset: -10,            // pulls it slightly inside the bar (adjust as needed)
                     formatter: (value) => value
                 }
+
             },
             scales: {
                 x: {
