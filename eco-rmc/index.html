@@ -100,7 +100,11 @@
             datalabels: {
                 color: function(context) {
                     const value = context.dataset.data[context.dataIndex];
-                    return value < 5 ? '#000000' : '#ffffff';   // black for small values, white for larger
+                    return value < 5 ? '#000000' : '#ffffff';   // black for small values, white for larger      
+                },
+                align: function(context) {
+                    const value = context.dataset.data[context.dataIndex];
+                    return value < 5 ? 'left' : 'right';        // small = outside right, large = inside right
                 },
                 anchor: function(context) {
                     const value = context.dataset.data[context.dataIndex];
