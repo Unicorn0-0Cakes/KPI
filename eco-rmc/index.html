@@ -98,30 +98,43 @@
                 },
                 // ✅ This controls the numbers inside the bars
             datalabels: {
-                color: function(context) {
+                // Text color
+                color: function (context) {
                     const value = context.dataset.data[context.dataIndex];
-                    return value < 5 ? '#000000' : '#ffffff';   // black for small values, white for larger      
+                    if (value === 0) return '#000000';         // doesn't matter (we hide zeros below)
+                    return value < 5 ? '#000000' : '#ffffff';  // small = black, big = white
                 },
-                align: function(context) {
+            
+                // Always attach to the "end" (right side) of the bar
+                anchor: 'end',
+            
+                // Which side of the anchor to draw on
+                align: function (context) {
                     const value = context.dataset.data[context.dataIndex];
-                    return value < 5 ? 'left' : 'right';        // small = outside right, large = inside right
+                    return value < 5 ? 'left' : 'right';       // small = outside right, big = inside right
                 },
-                anchor: function(context) {
+            
+                // How far from the bar edge (in pixels)
+                offset: function (context) {
                     const value = context.dataset.data[context.dataIndex];
-                    return value < 5 ? 'end' : 'end';           // both use 'end'
+            
+                    if (value === 0) return 0;                 // we'll hide these anyway
+                    if (value < 5) return 40;                  // push small numbers clearly past tiny bars
+                    return -80;                                // pull big numbers inside the bar
                 },
-                offset: function(context) {
-                    const value = context.dataset.data[context.dataIndex];
-                    return value < 5 ? 10 : -80;                // small = outside, large = inside
+            
+                font: {
+                    size: 28,
+                    weight: 'bold'
                 },
-                font: function(context) {
-                    return {
-                        size: 28,
-                        weight: 'bold'
-                    };
-                },
-                formatter: (value) => value
+            
+                // Hide zeros completely so they don't clutter the left side
+                formatter: function (value) {
+                    if (value === 0) return '';
+                    return value;
+                }
             }
+
 
             },
             scales: {
