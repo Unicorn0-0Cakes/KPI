@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>USA Weekly KPI Report - Last Week</title>
+    <title>USA Weekly KPI Report</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
@@ -34,7 +34,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>USA Weekly KPI Report - Last Week</h1>
+        <h1>USA Weekly KPI Report</h1>
         <div class="chart-container">
             <canvas id="kpiChart"></canvas>
         </div>
@@ -42,17 +42,17 @@
 
     <script>
         // ============================================
-        // LAST WEEK'S DATA (June 13, 2025)
+        // LAST WEEK'S DATA - Default at 0
         // Update this when moving to a new week
         // ============================================
         const weeklyData = {
-            'CONDITION MONITORING': 297,
-            'CAT SUPPORT': 50,
-            'DP MONITORING': 112,
-            'SAMSARA MONITORING': 47,
-            'RCA INVESTIGATIONS (IN HOURS)': 11,
-            'REMOTE SUPPORT': 43,
-            'VALUE CASES': 8
+            'CONDITION MONITORING': 0,
+            'CAT SUPPORT': 0,
+            'DP MONITORING': 0,
+            'SAMSARA MONITORING': 0,
+            'RCA INVESTIGATIONS (IN HOURS)': 0,
+            'REMOTE SUPPORT': 0,
+            'VALUE CASES': 0
         };
         // ============================================
 
@@ -64,8 +64,8 @@
                 datasets: [{
                     label: 'Week Value',
                     data: Object.values(weeklyData),
-                    backgroundColor: '#34A853',
-                    borderColor: '#34A853',
+                    backgroundColor: '#4285f4',
+                    borderColor: '#4285f4',
                     borderWidth: 1
                 }]
             },
@@ -74,18 +74,58 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false }
+                    legend: {
+                        display: false
+                    },
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'start',
+                        color: 'white',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: function(value) {
+                            return value;
+                        }
+                    }
                 },
                 scales: {
                     x: {
                         beginAtZero: true,
-                        grid: { display: true }
+                        ticks: {
+                            font: {
+                                size: 12
+                            }
+                        }
                     },
                     y: {
-                        grid: { display: false }
+                        ticks: {
+                            font: {
+                                size: 12
+                            }
+                        }
                     }
                 }
-            }
+            },
+            plugins: [{
+                afterDatasetsDraw: function(chart) {
+                    const ctx = chart.ctx;
+                    chart.data.datasets.forEach(function(dataset, i) {
+                        const meta = chart.getDatasetMeta(i);
+                        meta.data.forEach(function(bar, index) {
+                            const data = dataset.data[index];
+                            if (data > 0) {
+                                ctx.fillStyle = 'white';
+                                ctx.font = 'bold 14px Arial';
+                                ctx.textAlign = 'left';
+                                ctx.textBaseline = 'middle';
+                                ctx.fillText(data, bar.x + 10, bar.y);
+                            }
+                        });
+                    });
+                }
+            }]
         });
     </script>
 </body>
