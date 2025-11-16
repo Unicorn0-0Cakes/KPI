@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USA Weekly KPI Report - This Week</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .chart-container {
+            position: relative;
+            height: 500px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>USA Weekly KPI Report - This Week</h1>
+        <div class="chart-container">
+            <canvas id="kpiChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // UPDATE YOUR WEEKLY DATA HERE
+        // Just change the numbers below each week
+        // ============================================
+        const weeklyData = {
+            'CONDITION MONITORING': 72,
+            'CAT SUPPORT': 14,
+            'DP MONITORING': 106,
+            'SAMSARA MONITORING': 49,
+            'RCA INVESTIGATIONS (IN HOURS)': 5,
+            'REMOTE SUPPORT': 12,
+            'VALUE CASES': 3
+        };
+        // ============================================
+
+        const ctx = document.getElementById('kpiChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(weeklyData),
+                datasets: [{
+                    label: 'Week Value',
+                    data: Object.values(weeklyData),
+                    backgroundColor: '#4285f4',
+                    borderColor: '#4285f4',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: { display: true }
+                    },
+                    y: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
