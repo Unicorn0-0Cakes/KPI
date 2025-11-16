@@ -106,10 +106,6 @@
                     const value = context.dataset.data[context.dataIndex];
                     return value < 5 ? 'end' : 'end';           // both use 'end'
                 },
-                align: function(context) {
-                    const value = context.dataset.data[context.dataIndex];
-                    return value < 5 ? 'left' : 'right';        // small = outside right, large = inside right
-                },
                 offset: function(context) {
                     const value = context.dataset.data[context.dataIndex];
                     return value < 5 ? 10 : -80;                // small = outside, large = inside
