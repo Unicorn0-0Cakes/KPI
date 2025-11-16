@@ -97,17 +97,31 @@
                     display: false
                 },
                 // ✅ This controls the numbers inside the bars
-                datalabels: {
-                    anchor: 'end',          // push label to end of the bar
-                    align: 'right',         // position it just inside the right edge
-                    color: '#ffffff',       // white text
-                    font: {
-                        size: 28,           // << change this to make text bigger or smaller
+            datalabels: {
+                color: function(context) {
+                    const value = context.dataset.data[context.dataIndex];
+                    return value < 5 ? '#000000' : '#ffffff';   // black for small values, white for larger
+                },
+                anchor: function(context) {
+                    const value = context.dataset.data[context.dataIndex];
+                    return value < 5 ? 'end' : 'end';           // both use 'end'
+                },
+                align: function(context) {
+                    const value = context.dataset.data[context.dataIndex];
+                    return value < 5 ? 'left' : 'right';        // small = outside right, large = inside right
+                },
+                offset: function(context) {
+                    const value = context.dataset.data[context.dataIndex];
+                    return value < 5 ? 10 : -80;                // small = outside, large = inside
+                },
+                font: function(context) {
+                    return {
+                        size: 28,
                         weight: 'bold'
-                    },
-                    offset: -80,            // pulls it slightly inside the bar (adjust as needed)
-                    formatter: (value) => value
-                }
+                    };
+                },
+                formatter: (value) => value
+            }
 
             },
             scales: {
