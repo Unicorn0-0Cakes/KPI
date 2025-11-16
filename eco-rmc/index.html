@@ -74,18 +74,58 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false }
+                    legend: {
+                        display: false
+                    },
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'start',
+                        color: 'white',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: function(value) {
+                            return value;
+                        }
+                    }
                 },
                 scales: {
                     x: {
                         beginAtZero: true,
-                        grid: { display: true }
+                        ticks: {
+                            font: {
+                                size: 12
+                            }
+                        }
                     },
                     y: {
-                        grid: { display: false }
+                        ticks: {
+                            font: {
+                                size: 12
+                            }
+                        }
                     }
                 }
-            }
+            },
+            plugins: [{
+                afterDatasetsDraw: function(chart) {
+                    const ctx = chart.ctx;
+                    chart.data.datasets.forEach(function(dataset, i) {
+                        const meta = chart.getDatasetMeta(i);
+                        meta.data.forEach(function(bar, index) {
+                            const data = dataset.data[index];
+                            if (data > 0) {
+                                ctx.fillStyle = 'white';
+                                ctx.font = 'bold 14px Arial';
+                                ctx.textAlign = 'left';
+                                ctx.textBaseline = 'middle';
+                                ctx.fillText(data, bar.x + 10, bar.y);
+                            }
+                        });
+                    });
+                }
+            }]
         });
     </script>
 </body>
