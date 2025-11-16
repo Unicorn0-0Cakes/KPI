@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>USA Weekly KPI Report - This Week</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <style>
         body {
             margin: 0;
@@ -46,13 +47,13 @@
         // Just change the numbers below each week
         // ============================================
         const weeklyData = {
-            'CONDITION MONITORING': 10,
-            'CAT SUPPORT': 1,
-            'DP MONITORING': 23,
-            'SAMSARA MONITORING': 0,
-            'RCA INVESTIGATIONS (IN HOURS)': 0,
-            'REMOTE SUPPORT': 1,
-            'VALUE CASES': 0
+            'CONDITION MONITORING': 72,
+            'CAT SUPPORT': 14,
+            'DP MONITORING': 106,
+            'SAMSARA MONITORING': 49,
+            'RCA INVESTIGATIONS (IN HOURS)': 5,
+            'REMOTE SUPPORT': 12,
+            'VALUE CASES': 3
         };
         // ============================================
 
@@ -78,8 +79,8 @@
                         display: false
                     },
                     datalabels: {
-                        anchor: 'end',
-                        align: 'start',
+                        anchor: 'start',
+                        align: 'end',
                         color: 'white',
                         font: {
                             weight: 'bold',
@@ -107,25 +108,7 @@
                         }
                     }
                 }
-            },
-            plugins: [{
-                afterDatasetsDraw: function(chart) {
-                    const ctx = chart.ctx;
-                    chart.data.datasets.forEach(function(dataset, i) {
-                        const meta = chart.getDatasetMeta(i);
-                        meta.data.forEach(function(bar, index) {
-                            const data = dataset.data[index];
-                            if (data > 0) {
-                                ctx.fillStyle = 'white';
-                                ctx.font = 'bold 14px Arial';
-                                ctx.textAlign = 'left';
-                                ctx.textBaseline = 'middle';
-                                ctx.fillText(data, bar.x + 10, bar.y);
-                            }
-                        });
-                    });
-                }
-            }]
+            }
         });
     </script>
 </body>
