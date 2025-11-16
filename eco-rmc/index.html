@@ -101,27 +101,37 @@
                 // Text color
                 color: function (context) {
                     const value = context.dataset.data[context.dataIndex];
-                    if (value === 0) return '#000000';         // doesn't matter (we hide zeros below)
+                    if (value === 0) return '#000000';         // won't show, see formatter
                     return value < 5 ? '#000000' : '#ffffff';  // small = black, big = white
                 },
             
-                // Always attach to the "end" (right side) of the bar
+                // Attach to the right edge of the bar
                 anchor: 'end',
             
-                // Which side of the anchor to draw on
-                align: function (context) {
-                    const value = context.dataset.data[context.dataIndex];
-                    return value < 5 ? 'left' : 'right';       // small = outside right, big = inside right
-                },
+                // Always work relative to the right edge
+                align: 'right',
             
-                // How far from the bar edge (in pixels)
+                // Distance from the bar edge
                 offset: function (context) {
                     const value = context.dataset.data[context.dataIndex];
             
-                    if (value === 0) return 0;                 // we'll hide these anyway
-                    if (value < 5) return 40;                  // push small numbers clearly past tiny bars
-                    return -80;                                // pull big numbers inside the bar
+                    if (value === 0) return 0;     // hidden anyway
+                    if (value < 5) return 20;      // small = 20px to the RIGHT (outside bar)
+                    return -10;                    // big = 10px to the LEFT (inside bar)
                 },
+            
+                font: {
+                    size: 28,
+                    weight: 'bold'
+                },
+            
+                // Hide zeros completely
+                formatter: function (value) {
+                    if (value === 0) return '';
+                    return value;
+                }
+            }
+
             
                 font: {
                     size: 28,
