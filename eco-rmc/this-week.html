@@ -88,9 +88,6 @@
                 meta.data.forEach((bar, index) => {
                     const value = dataset.data[index];
 
-                    // Hide zeros
-                    if (value === 0) return;
-
                     const isSmall = value < 5;
 
                     // For horizontal bar: bar.x is right edge, bar.y is vertical center
