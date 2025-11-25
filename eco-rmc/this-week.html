@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -55,12 +54,13 @@
 
     <script>
         // ============================================
-        // UPDATE YOUR WEEKLY DATA HERE
-        // Just change the numbers below each week
+        // LOAD THIS WEEK'S DATA FROM localStorage
+        // (fall back to default values if none saved)
         // ============================================
-        const weeklyData = {
+        const storedThisWeek = localStorage.getItem('thisWeekData'); // set by index.html form
+        const weeklyData = storedThisWeek ? JSON.parse(storedThisWeek) : {
             'CONDITION MONITORING': 10,
-            'DP MONITORING': 62,            
+            'DP MONITORING': 62,
             'CAT SUPPORT': 2,
             'HVAC SUPPORT': 0,
             'SAMSARA MONITORING': 5,
@@ -77,10 +77,10 @@
 
         const ctx = document.getElementById('kpiChart').getContext('2d');
 
-        // Custom plugin to draw value labels
+        // Custom plugin to draw value labels like the "This Week" chart
         const valueLabelsPlugin = {
             id: 'valueLabelsPlugin',
-            afterDatasetsDraw(chart, args, pluginOptions) {
+            afterDatasetsDraw(chart) {
                 const { ctx } = chart;
                 const dataset = chart.data.datasets[0];
                 const meta = chart.getDatasetMeta(0);
@@ -91,25 +91,20 @@
 
                 meta.data.forEach((bar, index) => {
                     const value = dataset.data[index];
-
                     const isSmall = value < 5;
 
-                    // For horizontal bar: bar.x is right edge, bar.y is vertical center
                     let x;
                     if (isSmall) {
-                        // small values: just past the end of the bar
                         x = bar.x + 20;
                         ctx.fillStyle = '#000000';
                         ctx.textAlign = 'left';
                     } else {
-                        // larger values: inside the bar, near the end
                         x = bar.x - 10;
                         ctx.fillStyle = '#ffffff';
                         ctx.textAlign = 'right';
                     }
 
                     const y = bar.y;
-
                     ctx.fillText(String(value), x, y);
                 });
 
