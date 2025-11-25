@@ -1,12 +1,10 @@
 <script>
-    // Try to load from localStorage first ///////////////////
+    // Load from localStorage if available
     const storedLastWeek = localStorage.getItem('lastWeekData');
     const storedThisWeek = localStorage.getItem('thisWeekData');
 
-    // ================================================
-    // DATA STORAGE
-    // ================================================
-    const lastWeekData = storedLastWeek ? JSON.parse(storedLastWeek) : { ///////////////////
+    // Base data (fallback if nothing is stored)
+    const lastWeekData = storedLastWeek ? JSON.parse(storedLastWeek) : {
         'CONDITION MONITORING': 31,
         'DP MONITORING': 224,
         'CAT SUPPORT': 24,
@@ -19,7 +17,7 @@
         'VALUE CASES': 10
     };
 
-    const thisWeekData = storedThisWeek ? JSON.parse(storedThisWeek) : { ///////////////////
+    const thisWeekData = storedThisWeek ? JSON.parse(storedThisWeek) : {
         'CONDITION MONITORING': 10,
         'DP MONITORING': 62,
         'CAT SUPPORT': 2,
@@ -31,43 +29,145 @@
         'ON-SITE SUPPORT': 0,
         'VALUE CASES': 0
     };
-    // ================================================
 
     // Current active data
     let selectedWeek = 'this';
-    let currentData = {...thisWeekData};
+    let currentData = { ...thisWeekData };
 
-    // ... everything in between stays the same (chart, plugins, mapping, etc.) ...
+    // Initialize Chart
+    const ctx = document.getElementById('kpiChart').getContext('2d');
 
-    // Form submit handler
-    document.getElementById('kpi-form').addEventListener('submit', function(e) {
+    const valueLabelsPlugin = {
+        id: 'valueLabelsPlugin',
+        afterDatasetsDraw(chart) {
+            const { ctx } = chart;
+            const dataset = chart.data.datasets[0];
+            const meta = chart.getDatasetMeta(0);
+
+            ctx.save();
+            ctx.font = 'bold 11px Arial';
+            ctx.textBaseline = 'middle';
+
+            meta.data.forEach((bar, index) => {
+                const value = dataset.data[index];
+                const isSmall = value < 5;
+                const x = isSmall ? bar.x + 6 : bar.x - 6;
+                const y = bar.y;
+
+                ctx.fillStyle = isSmall ? '#333' : '#fff';
+                ctx.textAlign = isSmall ? 'left' : 'right';
+                ctx.fillText(value, x, y);
+            });
+
+            ctx.restore();
+        }
+    };
+
+    const kpiChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(currentData),
+            datasets: [{
+                label: 'KPI Value',
+                data: Object.values(currentData),
+                backgroundColor: '#255190',
+                borderRadius: 3
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { enabled: true }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    grid: { color: '#eee' },
+                    ticks: { font: { size: 10 } }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: { font: { size: 10 } }
+                }
+            }
+        },
+        plugins: [valueLabelsPlugin]
+    });
+
+    // Form field IDs mapped to data keys
+    const fieldMapping = {
+        'condmon': 'CONDITION MONITORING',
+        'dpmon': 'DP MONITORING',
+        'catsupport': 'CAT SUPPORT',
+        'hvacsupport': 'HVAC SUPPORT',
+        'samsara': 'SAMSARA MONITORING',
+        'rca': 'RCA INVESTIGATIONS (IN HOURS)',
+        'remotesupport': 'REMOTE SUPPORT',
+        'remoteaccess': 'REMOTE ACCESS',
+        'onsitesupport': 'ON-SITE SUPPORT',
+        'valuecases': 'VALUE CASES'
+    };
+
+    function populateForm() {
+        for (const [fieldId, dataKey] of Object.entries(fieldMapping)) {
+            document.getElementById(fieldId).value = currentData[dataKey];
+        }
+    }
+
+    function updateChart() {
+        kpiChart.data.datasets[0].data = Object.values(currentData);
+        kpiChart.update();
+    }
+
+    function updateTitle() {
+        const title = selectedWeek === 'this' ? "This Week's KPI Data" : "Last Week's KPI Data";
+        document.getElementById('chartTitle').textContent = title;
+    }
+
+    function showStatus(message) {
+        const statusEl = document.getElementById('statusMessage');
+        statusEl.textContent = message;
+        statusEl.className = 'status-message success';
+        setTimeout(() => {
+            statusEl.className = 'status-message';
+        }, 3000);
+    }
+
+    document.getElementById('whichWeek').addEventListener('change', function () {
+        selectedWeek = this.value;
+        currentData = selectedWeek === 'this' ? { ...thisWeekData } : { ...lastWeekData };
+        populateForm();
+        updateChart();
+        updateTitle();
+    });
+
+    document.getElementById('kpi-form').addEventListener('submit', function (e) {
         e.preventDefault();
-        
-        // Update currentData from form inputs
+
         for (const [fieldId, dataKey] of Object.entries(fieldMapping)) {
             currentData[dataKey] = Number(document.getElementById(fieldId).value);
         }
-        
-        // Save back to the appropriate week's data (in memory)
+
         if (selectedWeek === 'this') {
             Object.assign(thisWeekData, currentData);
         } else {
             Object.assign(lastWeekData, currentData);
         }
 
-        // /////////////////// NEW: persist both week objects in localStorage
+        // Save to localStorage so other pages can use the values
         localStorage.setItem('thisWeekData', JSON.stringify(thisWeekData));
         localStorage.setItem('lastWeekData', JSON.stringify(lastWeekData));
-        // ///////////////////
 
-        // Update the chart
         updateChart();
-        
-        // Show success message
+
         const weekName = selectedWeek === 'this' ? 'This Week' : 'Last Week';
         showStatus(`${weekName} updated!`);
     });
 
-    // Initialize form with current data
+    // Initialize with current data
     populateForm();
+    updateTitle();
 </script>
