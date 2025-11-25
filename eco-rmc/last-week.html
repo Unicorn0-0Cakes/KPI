@@ -54,9 +54,11 @@
 
     <script>
         // ============================================
-        // LAST WEEK'S DATA
+        // LOAD LAST WEEK'S DATA FROM localStorage
+        // (fall back to default values if none saved)
         // ============================================
-        const weeklyData = {
+        const storedLastWeek = localStorage.getItem('lastWeekData'); // set by index.html form
+        const weeklyData = storedLastWeek ? JSON.parse(storedLastWeek) : {
             'CONDITION MONITORING': 31,
             'DP MONITORING': 224,            
             'CAT SUPPORT': 24,
@@ -89,18 +91,14 @@
 
                 meta.data.forEach((bar, index) => {
                     const value = dataset.data[index];
-
                     const isSmall = value < 5;
 
-                    // For horizontal bar: bar.x is right edge, bar.y is vertical center
                     let x;
                     if (isSmall) {
-                        // small values: just past the end of the bar
                         x = bar.x + 20;
                         ctx.fillStyle = '#000000';
                         ctx.textAlign = 'left';
                     } else {
-                        // larger values: inside the bar, near the end
                         x = bar.x - 10;
                         ctx.fillStyle = '#ffffff';
                         ctx.textAlign = 'right';
