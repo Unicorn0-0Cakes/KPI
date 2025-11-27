@@ -380,6 +380,13 @@
             } else {
                 Object.assign(lastWeekData, currentData);
             }
+
+                            // Save to localStorage for persistent storage
+                if (selectedWeek === 'this') {
+                    localStorage.setItem('thisWeekData', JSON.stringify(currentData));
+                } else {
+                    localStorage.setItem('lastWeekData', JSON.stringify(currentData));
+                }
             
             // Update the chart
             updateChart();
