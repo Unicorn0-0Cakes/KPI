@@ -14,32 +14,32 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         html, body {
             height: 100%;
             width: 100%;
             overflow: hidden !important;
         }
-        
+
         body {
             font-family: Arial, sans-serif;
             padding: 10px;
             background-color: #f5f5f5;
         }
-        
+
         h1 {
             font-size: 1.5rem;
             margin-bottom: 10px;
             color: #333;
             text-align: center;
         }
-        
+
         .chart-container {
             width: 100%;
             height: calc(100vh - 60px);
             overflow: hidden;
         }
-        
+
         canvas {
             max-width: 100% !important;
             max-height: 100% !important;
@@ -53,101 +53,129 @@
     </div>
 
     <script>
-        // ============================================
-        // LOAD LAST WEEK'S DATA FROM localStorage
-        // (fall back to default values if none saved)
-        // ============================================
-        const storedLastWeek = localStorage.getItem('lastWeekData'); // set by index.html form
-        const weeklyData = storedLastWeek ? JSON.parse(storedLastWeek) : {
-            'CONDITION MONITORING': 31,
-            'DP MONITORING': 224,            
-            'CAT SUPPORT': 24,
-            'HVAC SUPPORT': 2,
-            'SAMSARA MONITORING': 40,
-            'RCA INVESTIGATIONS (IN HOURS)': 1,
-            'REMOTE SUPPORT': 7,
-            'REMOTE ACCESS': 3,
-            'ON-SITE SUPPORT': 0,
-            'VALUE CASES': 10
-        };
-        // ============================================
-
-        const labels = Object.keys(weeklyData);
-        const values = Object.values(weeklyData);
-
-        const ctx = document.getElementById('kpiChart').getContext('2d');
-
-        // Custom plugin to draw value labels like the "This Week" chart
-        const valueLabelsPlugin = {
-            id: 'valueLabelsPlugin',
-            afterDatasetsDraw(chart) {
-                const { ctx } = chart;
-                const dataset = chart.data.datasets[0];
-                const meta = chart.getDatasetMeta(0);
-
-                ctx.save();
-                ctx.font = 'bold 22px Arial';
-                ctx.textBaseline = 'middle';
-
-                meta.data.forEach((bar, index) => {
-                    const value = dataset.data[index];
-                    const isSmall = value < 5;
-
-                    let x;
-                    if (isSmall) {
-                        x = bar.x + 20;
-                        ctx.fillStyle = '#000000';
-                        ctx.textAlign = 'left';
-                    } else {
-                        x = bar.x - 10;
-                        ctx.fillStyle = '#ffffff';
-                        ctx.textAlign = 'right';
-                    }
-
-                    const y = bar.y;
-                    ctx.fillText(String(value), x, y);
-                });
-
-                ctx.restore();
+        // ==============================================
+        // LOAD LAST WEEK'S DATA FROM CSV FILE
+        // ==============================================
+        
+        async function loadKPIData() {
+            try {
+                // Fetch the CSV file from the same folder
+                const response = await fetch('https://raw.githubusercontent.com/Unicorn0-0Cakes/KPI/main/eco-rmc/kpi-data.csv');
+                const csvText = await response.text();
+                
+                // Parse CSV
+                const lines = csvText.trim().split('\n');
+                const headers = lines[0].split(',');
+                
+                const weeklyData = {};
+                
+                // Skip header row, process data rows
+                // Use index 2 for "Last Week" column
+                for (let i = 1; i < lines.length; i++) {
+                    const values = lines[i].split(',');
+                    const kpiName = values[0].trim();
+                    const lastWeekValue = parseInt(values[2].trim()) || 0;
+                    weeklyData[kpiName] = lastWeekValue;
+                }
+                
+                return weeklyData;
+            } catch (error) {
+                console.error('Error loading CSV:', error);
+                // Return default values if CSV fails to load
+                return {
+                    'CONDITION MONITORING': 20,
+                    'DP MONITORING': 55,
+                    'CAT SUPPORT': 1,
+                    'HVAC SUPPORT': 0,
+                    'SAMSARA MONITORING': 4,
+                    'RCA INVESTIGATIONS (IN HOURS)': 0,
+                    'REMOTE SUPPORT': 0,
+                    'REMOTE ACCESS': 0,
+                    'ON-SITE SUPPORT': 0,
+                    'VALUE CASES': 0
+                };
             }
-        };
-
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Week Value',
-                    data: values,
-                    backgroundColor: '#255190',
-                    borderColor: '#255190',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
+        }
+        
+        // Initialize chart after loading data
+        loadKPIData().then(weeklyData => {
+            const labels = Object.keys(weeklyData);
+            const values = Object.values(weeklyData);
+            
+            const ctx = document.getElementById('kpiChart').getContext('2d');
+            
+            // Custom plugin to draw value labels
+            const valueLabelsPlugin = {
+                id: 'valueLabelsPlugin',
+                afterDatasetsDraw(chart) {
+                    const { ctx } = chart;
+                    const dataset = chart.data.datasets[0];
+                    const meta = chart.getDatasetMeta(0);
+                    
+                    ctx.save();
+                    ctx.font = 'bold 22px Arial';
+                    ctx.textBaseline = 'middle';
+                    
+                    meta.data.forEach((bar, index) => {
+                        const value = dataset.data[index];
+                        const isSmall = value < 5;
+                        
+                        let x;
+                        if (isSmall) {
+                            x = bar.x + 10;
+                            ctx.fillStyle = '#333';
+                            ctx.textAlign = 'left';
+                        } else {
+                            x = bar.x - 10;
+                            ctx.fillStyle = '#ffffff';
+                            ctx.textAlign = 'right';
+                        }
+                        
+                        const y = bar.y;
+                        ctx.fillText(String(value), x, y);
+                    });
+                    
+                    ctx.restore();
+                }
+            };
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Week Value',
+                        data: values,
+                        backgroundColor: '#255190',
+                        borderColor: '#255190',
+                        borderWidth: 1
+                    }]
                 },
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        ticks: {
-                            precision: 0
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
                         }
                     },
-                    y: {
-                        ticks: {
-                            autoSkip: false
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                autoSkip: false
+                            }
                         }
                     }
-                }
-            },
-            plugins: [valueLabelsPlugin]
+                },
+                plugins: [valueLabelsPlugin]
+            });
         });
     </script>
 </body>
